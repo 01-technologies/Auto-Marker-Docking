@@ -384,6 +384,14 @@ private:
       auto marker_translate = marker_translates[0];
       auto marker_rotate = marker_rotates[0];
 
+      cv::Mat R;
+      cv::Rodrigues(marker_rotate, R);
+      double yaw = std::atan2(R.at<double>(1,0), R.at<double>(0,0));  
+      Eigen::AngleAxisd rotation(
+        radian_normalization(yaw),
+        Eigen::Vector3d::UnitZ()
+      );
+
       marker_rotate[1] = marker_rotate[1] * -1;
 
       Eigen::Vector3d translation(marker_translate[0], 0.0, marker_translate[2]);
