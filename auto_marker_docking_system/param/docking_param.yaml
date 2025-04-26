@@ -1,6 +1,6 @@
 auto_marker_docking_action_server:
   ros__parameters:
-    camera_topic: "/camera/image_raw"
+    camera_topic: "/camera/camera/color/image_raw"
     camera_link_name: "camera_link"
     camera_intrinsic_matrix: [
       1696.80268, 0.0, 960.5,

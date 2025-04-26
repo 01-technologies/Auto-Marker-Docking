@@ -14,11 +14,8 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <geometry_msgs/msg/transform_stamped.hpp>
-
-#include <tf2_eigen/tf2_eigen.h>
-
+#include <tf2_eigen/tf2_eigen.hpp>
 #include "auto_marker_docking_interface/action/marker_docking.hpp"
-
 #include "auto_marker_docking/aruco_marker_detector.hpp"
 #include "auto_marker_docking/aruco_kalman_filter.hpp"
 #include "auto_marker_docking/PD_controller.hpp"
@@ -149,23 +146,26 @@ private:
 
         if (current_step_ == DETECTION) {
           if (detected_count_ >= 100) {
-            current_step_ = WAYPOINT_1;
-            RCLCPP_INFO(this->get_logger(), "change step: DETECTION -> WAYPOINT_1");
+            current_step_ = ARUCO_1;
+            RCLCPP_INFO(this->get_logger(), "change step: DETECTION -> ARUCO_1");
 
           }
-        } else if (current_step_ == WAYPOINT_1) {
+        
+          /*
+          else if (current_step_ == WAYPOINT_1) {
           robot_velocity_input_(0) = 0.0;
           robot_velocity_input_(1) = velocity(1);
 
-          if (std::abs(translation(1)) <= 0.02) {
+          if (std::abs(translation(1)) <= 0.1) {
             current_step_ = WAYPOINT_2;
             RCLCPP_INFO(this->get_logger(), "change step: WAYPOINT_1 -> WAYPOINT_2");
           }
         } else if (current_step_ == WAYPOINT_2) {
           robot_velocity_input_(0) = velocity(0);
           robot_velocity_input_(1) = 0.0;
+          */
 
-          if (std::abs(translation(0)) <= 0.02) {
+          if (std::abs(translation(0)) <= 0.1) {
             current_step_ = ARUCO_1;
             RCLCPP_INFO(this->get_logger(), "change step: WAYPOINT_2 -> ARUCO_1");
           }
@@ -261,7 +261,7 @@ private:
     std::vector<double> P_gain = {0.25, 0.25, 0.25};
     std::vector<double> D_gain = {0.01, 0.01, 0.01};
 
-    this->declare_parameter("camera_topic", "/camera/image_raw");
+    this->declare_parameter("camera_topic", "/camera/camera/color/image_raw");
     this->get_parameter("camera_topic", camera_topic_);
 
     std::cout  <<  "camera_topic: " << camera_topic_ << std::endl;
@@ -374,6 +374,7 @@ private:
     auto is_success = aruco_marker_detector_ptr_->detectMarkers(image);
 
     if (is_success) {
+      RCLCPP_INFO(this->get_logger(), "🎯 ArUco marker detected! 🎯");
       detected_count_ += 1;
       detect_marker_pose_ = Eigen::Isometry3d::Identity();
 
